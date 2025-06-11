@@ -42,7 +42,7 @@ const Footer = () => {
               to="/"
               className="text-2xl font-bold bg-gradient-to-r from-secondary to-accent bg-clip-text text-transparent inline-block mb-4"
             >
-              Dev<span className="text-white">Portfolio</span>
+              CK<span className="text-white">Portfolio</span>
             </Link>
             <p className="text-gray-400 mb-6">
               A creative developer focused on building beautiful and functional web experiences
