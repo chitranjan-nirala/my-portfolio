@@ -52,7 +52,7 @@
 
 
 // railway dATA BASE COONECTION
-require('dotenv').config();
+// Remove dotenv requirement for Railway deployment
 const express = require('express');
 const mysql = require('mysql');
 const cors = require('cors');
@@ -99,6 +99,8 @@ const createDbConnection = () => {
       return;
     }
     console.log('✅ Connected to MySQL database');
+    console.log(`📊 Database: ${process.env.MYSQLDATABASE}`);
+    console.log(`🌐 Host: ${process.env.MYSQLHOST}`);
   });
 
   // Handle connection errors
@@ -120,7 +122,8 @@ app.get('/', (req, res) => {
   res.json({ 
     message: 'Contact Backend API is running!',
     status: 'healthy',
-    timestamp: new Date().toISOString()
+    timestamp: new Date().toISOString(),
+    version: '1.0.0'
   });
 });
 
@@ -129,11 +132,38 @@ app.get('/api/status', (req, res) => {
   res.json({
     api: 'Contact Backend',
     status: 'active',
+    database: 'connected',
     endpoints: [
       'GET /',
       'GET /api/status',
-      'POST /api/contact'
-    ]
+      'POST /api/contact',
+      'GET /api/contact',
+      'GET /api/contact/:id',
+      'PUT /api/contact/:id',
+      'DELETE /api/contact/:id',
+      'GET /api/contact/search/:term'
+    ],
+    timestamp: new Date().toISOString()
+  });
+});
+
+// Database health check endpoint
+app.get('/api/health', (req, res) => {
+  db.query('SELECT 1', (err, results) => {
+    if (err) {
+      console.error('❌ Database health check failed:', err);
+      return res.status(500).json({
+        status: 'unhealthy',
+        database: 'disconnected',
+        error: 'Database connection failed'
+      });
+    }
+    
+    res.json({
+      status: 'healthy',
+      database: 'connected',
+      timestamp: new Date().toISOString()
+    });
   });
 });
 
@@ -144,24 +174,44 @@ try {
   console.log('✅ Contact routes loaded successfully');
 } catch (error) {
   console.error('❌ Error loading contact routes:', error.message);
+  console.error('📁 Make sure ./routes/contact.js exists');
   process.exit(1);
 }
 
 // Global error handler
 app.use((err, req, res, next) => {
   console.error('❌ Unhandled error:', err);
-  res.status(500).json({ error: 'Internal server error' });
+  res.status(500).json({ 
+    error: 'Internal server error',
+    timestamp: new Date().toISOString()
+  });
 });
 
 // Handle 404
 app.use('*', (req, res) => {
-  res.status(404).json({ error: 'Route not found' });
+  res.status(404).json({ 
+    error: 'Route not found',
+    availableRoutes: [
+      'GET /',
+      'GET /api/status',
+      'GET /api/health',
+      'POST /api/contact',
+      'GET /api/contact',
+      'GET /api/contact/:id',
+      'PUT /api/contact/:id',
+      'DELETE /api/contact/:id',
+      'GET /api/contact/search/:term'
+    ]
+  });
 });
 
 // Start server - Must bind to 0.0.0.0 for Railway
 app.listen(PORT, '0.0.0.0', () => {
   console.log(`🚀 Server running on port ${PORT}`);
   console.log(`📍 Environment: ${process.env.NODE_ENV || 'development'}`);
+  console.log(`🌐 Server URL: http://0.0.0.0:${PORT}`);
+  console.log(`📊 Database: ${process.env.MYSQLDATABASE || 'Not configured'}`);
+  console.log('✅ Server started successfully');
 });
 
 // Handle graceful shutdown
@@ -172,6 +222,8 @@ process.on('SIGTERM', () => {
       console.log('✅ Database connection closed');
       process.exit(0);
     });
+  } else {
+    process.exit(0);
   }
 });
 
@@ -182,5 +234,19 @@ process.on('SIGINT', () => {
       console.log('✅ Database connection closed');
       process.exit(0);
     });
+  } else {
+    process.exit(0);
   }
+});
+
+// Handle uncaught exceptions
+process.on('uncaughtException', (err) => {
+  console.error('❌ Uncaught Exception:', err);
+  process.exit(1);
+});
+
+// Handle unhandled promise rejections
+process.on('unhandledRejection', (reason, promise) => {
+  console.error('❌ Unhandled Rejection at:', promise, 'reason:', reason);
+  process.exit(1);
 });
