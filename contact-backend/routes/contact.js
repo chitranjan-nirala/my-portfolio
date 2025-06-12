@@ -64,7 +64,37 @@ module.exports = (db) => {
     });
   });
 
+  // GET /api/contact/search/:term - Search contacts by name or email
+  // ⚠️ IMPORTANT: This MUST come BEFORE the /:id route
+  router.get("/search/:term", (req, res) => {
+    const { term } = req.params;
+    
+    if (!term || term.trim().length < 2) {
+      console.log("❌ Validation failed: Search term too short");
+      return res.status(400).json({ error: "Search term must be at least 2 characters" });
+    }
+
+    const searchTerm = `%${term.trim()}%`;
+    const sql = "SELECT * FROM contacts WHERE name LIKE ? OR email LIKE ? ORDER BY id DESC";
+    
+    db.query(sql, [searchTerm, searchTerm], (err, results) => {
+      if (err) {
+        console.error("❌ Database error searching contacts:", err);
+        return res.status(500).json({ error: "Database error occurred" });
+      }
+      
+      console.log(`✅ Search completed: ${results.length} contacts found for term "${term}"`);
+      res.json({
+        message: "✅ Search completed successfully",
+        searchTerm: term,
+        count: results.length,
+        contacts: results
+      });
+    });
+  });
+
   // GET /api/contact/:id - Get single contact by ID
+  // ⚠️ IMPORTANT: This MUST come AFTER more specific routes like /search/:term
   router.get("/:id", (req, res) => {
     const { id } = req.params;
     
@@ -171,34 +201,6 @@ module.exports = (db) => {
       res.json({ 
         message: "✅ Contact deleted successfully",
         id: parseInt(id)
-      });
-    });
-  });
-
-  // GET /api/contact/search/:term - Search contacts by name or email
-  router.get("/search/:term", (req, res) => {
-    const { term } = req.params;
-    
-    if (!term || term.trim().length < 2) {
-      console.log("❌ Validation failed: Search term too short");
-      return res.status(400).json({ error: "Search term must be at least 2 characters" });
-    }
-
-    const searchTerm = `%${term.trim()}%`;
-    const sql = "SELECT * FROM contacts WHERE name LIKE ? OR email LIKE ? ORDER BY id DESC";
-    
-    db.query(sql, [searchTerm, searchTerm], (err, results) => {
-      if (err) {
-        console.error("❌ Database error searching contacts:", err);
-        return res.status(500).json({ error: "Database error occurred" });
-      }
-      
-      console.log(`✅ Search completed: ${results.length} contacts found for term "${term}"`);
-      res.json({
-        message: "✅ Search completed successfully",
-        searchTerm: term,
-        count: results.length,
-        contacts: results
       });
     });
   });

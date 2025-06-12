@@ -187,10 +187,12 @@ app.use((err, req, res, next) => {
   });
 });
 
-// Handle 404
-app.use('*', (req, res) => {
+// Handle 404 - FIXED: Removed the problematic '*' pattern
+app.use((req, res) => {
   res.status(404).json({ 
     error: 'Route not found',
+    path: req.originalUrl,
+    method: req.method,
     availableRoutes: [
       'GET /',
       'GET /api/status',
