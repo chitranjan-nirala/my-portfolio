@@ -85,9 +85,6 @@ app.use((err, req, res, next) => {
   next();
 });
 
-// Replace your database connection section in index.js with this:
-
-const mysql = require('mysql2');
 
 // MySQL connection pool with proper configuration for Railway
 let db = null;
