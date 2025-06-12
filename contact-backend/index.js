@@ -54,7 +54,6 @@
 // railway dATA BASE COONECTION
 // Remove dotenv requirement for Railway deployment
 const express = require('express');
-// const mysql = require('mysql');
 const mysql = require('mysql2');
 const cors = require('cors');
 const bodyParser = require('body-parser');
@@ -79,44 +78,86 @@ app.use((err, req, res, next) => {
   next();
 });
 
-// MySQL connection with retry logic
+// MySQL connection with retry logic and proper configuration
+let db = null;
+let connectionAttempts = 0;
+const maxConnectionAttempts = 10;
+
 const createDbConnection = () => {
-  const db = mysql.createConnection({
-    host: process.env.MYSQLHOST,
-    user: process.env.MYSQLUSER,
-    password: process.env.MYSQLPASSWORD,
-    database: process.env.MYSQLDATABASE,
+  if (connectionAttempts >= maxConnectionAttempts) {
+    console.error('❌ Max connection attempts reached. Exiting...');
+    process.exit(1);
+  }
+
+  connectionAttempts++;
+  console.log(`🔄 Database connection attempt ${connectionAttempts}/${maxConnectionAttempts}`);
+
+  // Fixed configuration - removed invalid options
+  const connectionConfig = {
+    host: process.env.MYSQLHOST || 'localhost',
+    user: process.env.MYSQLUSER || 'root',
+    password: process.env.MYSQLPASSWORD || '',
+    database: process.env.MYSQLDATABASE || 'test',
     port: process.env.MYSQLPORT || 3306,
-    acquireTimeout: 60000,
-    timeout: 60000,
-    reconnect: true
+    connectTimeout: 60000,    // ✅ Valid option
+    // Removed invalid options: acquireTimeout, timeout, reconnect
+  };
+
+  console.log('🔗 Attempting to connect to database:', {
+    host: connectionConfig.host,
+    port: connectionConfig.port,
+    user: connectionConfig.user,
+    database: connectionConfig.database
   });
+
+  db = mysql.createConnection(connectionConfig);
 
   db.connect((err) => {
     if (err) {
       console.error('❌ Error connecting to database:', err.code);
-      console.log('🔄 Will retry database connection...');
+      console.error('❌ Error message:', err.message);
+      
+      // Check for specific error types
+      if (err.code === 'ECONNREFUSED') {
+        console.error('💡 Possible solutions:');
+        console.error('   1. Check if MySQL server is running');
+        console.error('   2. Verify host and port are correct');
+        console.error('   3. Check firewall settings');
+      } else if (err.code === 'ER_ACCESS_DENIED_ERROR') {
+        console.error('💡 Check username and password credentials');
+      } else if (err.code === 'ER_BAD_DB_ERROR') {
+        console.error('💡 Check if database exists');
+      }
+      
+      console.log(`🔄 Will retry database connection in 5 seconds... (${connectionAttempts}/${maxConnectionAttempts})`);
       setTimeout(createDbConnection, 5000); // Retry after 5 seconds
       return;
     }
+    
     console.log('✅ Connected to MySQL database');
     console.log(`📊 Database: ${process.env.MYSQLDATABASE}`);
-    console.log(`🌐 Host: ${process.env.MYSQLHOST}`);
+    console.log(`🌐 Host: ${process.env.MYSQLHOST}:${process.env.MYSQLPORT}`);
+    connectionAttempts = 0; // Reset counter on successful connection
   });
 
   // Handle connection errors
   db.on('error', (err) => {
     console.error('❌ Database connection error:', err.code);
-    if (err.code === 'PROTOCOL_CONNECTION_LOST') {
-      console.log('🔄 Reconnecting to database...');
+    console.error('❌ Error message:', err.message);
+    
+    if (err.code === 'PROTOCOL_CONNECTION_LOST' || err.code === 'ECONNRESET') {
+      console.log('🔄 Connection lost, attempting to reconnect...');
       createDbConnection();
+    } else {
+      console.error('❌ Fatal database error:', err);
     }
   });
 
   return db;
 };
 
-const db = createDbConnection();
+// Initialize database connection
+createDbConnection();
 
 // Health check endpoint
 app.get('/', (req, res) => {
@@ -133,7 +174,7 @@ app.get('/api/status', (req, res) => {
   res.json({
     api: 'Contact Backend',
     status: 'active',
-    database: 'connected',
+    database: db && db.state === 'authenticated' ? 'connected' : 'disconnected',
     endpoints: [
       'GET /',
       'GET /api/status',
@@ -150,22 +191,44 @@ app.get('/api/status', (req, res) => {
 
 // Database health check endpoint
 app.get('/api/health', (req, res) => {
-  db.query('SELECT 1', (err, results) => {
+  if (!db) {
+    return res.status(500).json({
+      status: 'unhealthy',
+      database: 'disconnected',
+      error: 'Database connection not initialized'
+    });
+  }
+
+  db.query('SELECT 1 as health_check', (err, results) => {
     if (err) {
       console.error('❌ Database health check failed:', err);
       return res.status(500).json({
         status: 'unhealthy',
         database: 'disconnected',
-        error: 'Database connection failed'
+        error: 'Database query failed',
+        details: err.message
       });
     }
     
     res.json({
       status: 'healthy',
       database: 'connected',
+      query_result: results[0],
       timestamp: new Date().toISOString()
     });
   });
+});
+
+// Middleware to check database connection before handling routes
+app.use('/api/contact', (req, res, next) => {
+  if (!db || db.state !== 'authenticated') {
+    return res.status(503).json({
+      error: 'Database not available',
+      message: 'Please try again later',
+      timestamp: new Date().toISOString()
+    });
+  }
+  next();
 });
 
 // Routes
@@ -176,7 +239,18 @@ try {
 } catch (error) {
   console.error('❌ Error loading contact routes:', error.message);
   console.error('📁 Make sure ./routes/contact.js exists');
-  process.exit(1);
+  
+  // Don't exit immediately, allow server to start for health checks
+  console.log('⚠️  Server will start without contact routes');
+  
+  // Create a fallback route for contact endpoints
+  app.use('/api/contact', (req, res) => {
+    res.status(503).json({
+      error: 'Contact routes not available',
+      message: 'Routes could not be loaded',
+      timestamp: new Date().toISOString()
+    });
+  });
 }
 
 // Global error handler
@@ -215,36 +289,40 @@ app.listen(PORT, '0.0.0.0', () => {
   console.log(`🌐 Server URL: http://0.0.0.0:${PORT}`);
   console.log(`📊 Database: ${process.env.MYSQLDATABASE || 'Not configured'}`);
   console.log('✅ Server started successfully');
+  
+  // Log environment variables for debugging (without sensitive data)
+  console.log('🔧 Database Configuration:');
+  console.log(`   Host: ${process.env.MYSQLHOST || 'localhost'}`);
+  console.log(`   Port: ${process.env.MYSQLPORT || 3306}`);
+  console.log(`   User: ${process.env.MYSQLUSER || 'root'}`);
+  console.log(`   Database: ${process.env.MYSQLDATABASE || 'test'}`);
+  console.log(`   Password: ${process.env.MYSQLPASSWORD ? '[SET]' : '[NOT SET]'}`);
 });
 
 // Handle graceful shutdown
-process.on('SIGTERM', () => {
-  console.log('🔄 SIGTERM received, shutting down gracefully...');
+const gracefulShutdown = (signal) => {
+  console.log(`🔄 ${signal} received, shutting down gracefully...`);
   if (db) {
-    db.end(() => {
-      console.log('✅ Database connection closed');
+    db.end((err) => {
+      if (err) {
+        console.error('❌ Error closing database connection:', err);
+      } else {
+        console.log('✅ Database connection closed');
+      }
       process.exit(0);
     });
   } else {
     process.exit(0);
   }
-});
+};
 
-process.on('SIGINT', () => {
-  console.log('🔄 SIGINT received, shutting down gracefully...');
-  if (db) {
-    db.end(() => {
-      console.log('✅ Database connection closed');
-      process.exit(0);
-    });
-  } else {
-    process.exit(0);
-  }
-});
+process.on('SIGTERM', () => gracefulShutdown('SIGTERM'));
+process.on('SIGINT', () => gracefulShutdown('SIGINT'));
 
 // Handle uncaught exceptions
 process.on('uncaughtException', (err) => {
   console.error('❌ Uncaught Exception:', err);
+  console.error('Stack trace:', err.stack);
   process.exit(1);
 });
 
@@ -253,3 +331,5 @@ process.on('unhandledRejection', (reason, promise) => {
   console.error('❌ Unhandled Rejection at:', promise, 'reason:', reason);
   process.exit(1);
 });
+
+module.exports = app;
