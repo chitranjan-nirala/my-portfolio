@@ -70,10 +70,16 @@ const app = express();
 const PORT =  8080; // Changed default to 8080 for Railway
 
 // Middleware
+// Middleware
 app.use(cors({
-  origin: process.env.FRONTEND_URL || '*', // Configure this in Railway
+  origin: [
+    'http://localhost:5173',  // for local development
+    'https://my-portfolio-beta-ten-38.vercel.app',  // for production
+    process.env.FRONTEND_URL  // fallback to env variable if set
+  ].filter(Boolean), // Remove any undefined values
   credentials: true
 }));
+
 app.use(bodyParser.json({ limit: '10mb' }));
 app.use(bodyParser.urlencoded({ extended: true }));
 
