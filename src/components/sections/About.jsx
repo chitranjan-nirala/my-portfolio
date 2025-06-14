@@ -3,7 +3,7 @@ import { motion, useInView } from "framer-motion";
 import gsap from "gsap";
 import ScrollTrigger from "gsap/ScrollTrigger";
 import AnimatedText from "../ui/AnimatedText";
-import AboutImage from '../../assets/_DAP2434-Photoroom.png'; 
+import AboutImage from '../../assets/hero-image.png'; 
 
 // Register ScrollTrigger plugin
 gsap.registerPlugin(ScrollTrigger);

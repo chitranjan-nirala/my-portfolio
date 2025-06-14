@@ -1,7 +1,8 @@
 import { useEffect, useRef, useState } from "react";
 import { motion } from "framer-motion";
 import resume from '../../assets/Chitranjan_Resume.pdf';
-import heroImage from '../../assets/_DAP2434-Photoroom.png';
+// import heroImage from '../../assets/hero-image.png';
+import heroImage from '../../assets/_DAP2434-Photoroom.png'
 const Hero = () => {
   const heroRef = useRef(null);
   const backgroundShapeRef = useRef(null);
