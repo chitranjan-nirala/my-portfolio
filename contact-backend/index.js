@@ -48,16 +48,6 @@
 //   console.log(`Server running on http://localhost:${PORT}`);
 // });
 
-// Add this RIGHT at the top of your index.js, before everything else
-console.log('🔍 Environment debugging:');
-console.log('   NODE_ENV:', process.env.NODE_ENV);
-console.log('   PORT from env:', process.env.PORT);
-console.log('   MYSQLHOST:', process.env.MYSQLHOST);
-console.log('   RAILWAY_ENVIRONMENT:', process.env.RAILWAY_ENVIRONMENT);
-
-const PORT = process.env.PORT || 8080;
-console.log('   Final PORT value:', PORT);
-
 
 
 
@@ -68,9 +58,6 @@ const mysql = require('mysql2');
 const cors = require('cors');
 const bodyParser = require('body-parser');
 
-
-
-
 // Load environment variables if .env file exists
 try {
   require('dotenv').config();
@@ -79,8 +66,8 @@ try {
 }
 
 const app = express();
-// const PORT = process.env.PORT || 5000;
-
+// FIX: Uncommented PORT variable - this was causing the issue!
+const PORT = process.env.PORT || 8080; // Changed default to 8080 for Railway
 
 // Middleware
 app.use(cors({
@@ -98,7 +85,6 @@ app.use((err, req, res, next) => {
   }
   next();
 });
-
 
 // MySQL connection pool with proper configuration for Railway
 let db = null;
@@ -314,18 +300,6 @@ app.get('/admin/db-info', (req, res) => {
     });
   });
 });
-
-// Middleware to check database connection before handling routes
-// app.use('/api/contact', (req, res, next) => {
-//   if (!db || db.state !== 'authenticated') {
-//     return res.status(503).json({
-//       error: 'Database not available',
-//       message: 'Please try again later',
-//       timestamp: new Date().toISOString()
-//     });
-//   }
-//   next();
-// });
 
 // Routes
 try {
