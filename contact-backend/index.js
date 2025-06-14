@@ -74,9 +74,10 @@ const PORT =  8080; // Changed default to 8080 for Railway
 app.use(cors({
   origin: [
     'http://localhost:5173',  // for local development
-    'https://my-portfolio-beta-ten-38.vercel.app',  // for production
-    process.env.FRONTEND_URL  // fallback to env variable if set
-  ].filter(Boolean), // Remove any undefined values
+    'https://my-portfolio-beta-ten-38.vercel.app',  // old domain
+    'https://my-portfolio-lofrh4hdb-chitranjan-niralas-projects.vercel.app',  // new domain
+    'https://my-portfolio-chitranjan-niralas-projects.vercel.app' // in case you get a custom domain
+  ],
   credentials: true
 }));
 
