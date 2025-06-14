@@ -55,7 +55,7 @@ console.log('   PORT from env:', process.env.PORT);
 console.log('   MYSQLHOST:', process.env.MYSQLHOST);
 console.log('   RAILWAY_ENVIRONMENT:', process.env.RAILWAY_ENVIRONMENT);
 
-const PORT = process.env.PORT || 5000;
+const PORT = process.env.PORT || 8080;
 console.log('   Final PORT value:', PORT);
 
 
