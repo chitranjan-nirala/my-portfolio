@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { motion } from "framer-motion";
 import resume from '../../assets/Chitranjan_Resume.pdf';
+import heroImage from '../../assets/_DAP2434-Photoroom.png';
 const Hero = () => {
   const heroRef = useRef(null);
   const backgroundShapeRef = useRef(null);
@@ -170,7 +171,7 @@ const Hero = () => {
               >
                 {/* Image with hover zoom effect */}
                 <img 
-                  src="../../assets/_DAP2434-Photoroom.png" 
+                  src={heroImage} 
                   alt="Chitranjan Nirala - Web Developer and UI/UX Designer" 
                   className={`w-full h-full object-cover transition-all duration-700 ease-in-out
                     ${isHovering ? 'scale-110 filter saturate-110' : 'scale-100'}`}
