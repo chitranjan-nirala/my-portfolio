@@ -103,19 +103,14 @@ const getDbConfig = () => {
       password: process.env.MYSQLPASSWORD || '',
       database: process.env.MYSQLDATABASE || 'railway',
       port: process.env.MYSQLPORT || 3306,
-      // Connection pool settings
+      // Connection pool settings (these are valid for pools)
       connectionLimit: 10,
       acquireTimeout: 60000,
-      timeout: 60000,
       // Keep connection alive
       keepAliveInitialDelay: 0,
       enableKeepAlive: true,
-      // Reconnection settings
-      reconnect: true,
+      // Pool idle timeout
       idleTimeout: 300000, // 5 minutes
-      // MySQL timeout settings
-      wait_timeout: 28800,
-      interactive_timeout: 28800,
     };
   } else {
     // Use public connection for local development
@@ -127,8 +122,6 @@ const getDbConfig = () => {
       port: process.env.DB_PORT || 34378,
       connectionLimit: 10,
       acquireTimeout: 60000,
-      timeout: 60000,
-      reconnect: true,
     };
   }
 };

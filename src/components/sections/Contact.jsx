@@ -29,7 +29,7 @@ const Contact = () => {
     setIsSubmitting(true);
 
     try {
-      const response = await fetch("", {
+      const response = await fetch("https://my-portfolio-production-ea93.up.railway.app", {
         method: "POST",
         headers: {
           "Content-Type": "application/json"
