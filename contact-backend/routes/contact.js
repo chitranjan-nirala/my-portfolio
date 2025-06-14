@@ -26,7 +26,8 @@ module.exports = (db) => {
       message: message.trim()
     };
 
-    const sql = "INSERT INTO contacts (name, email, message) VALUES (?, ?, ?)";
+    // Updated to include created_at timestamp
+    const sql = "INSERT INTO contacts (name, email, message, created_at) VALUES (?, ?, ?, NOW())";
     db.query(sql, [trimmedData.name, trimmedData.email, trimmedData.message], (err, result) => {
       if (err) {
         console.error("❌ Database error saving contact:", err);
@@ -48,7 +49,8 @@ module.exports = (db) => {
 
   // GET /api/contact - Get all contacts
   router.get("/", (req, res) => {
-    const sql = "SELECT * FROM contacts ORDER BY id DESC";
+    // Updated to order by created_at (newest first), fallback to id if created_at is null
+    const sql = "SELECT * FROM contacts ORDER BY COALESCE(created_at, FROM_UNIXTIME(0)) DESC, id DESC";
     db.query(sql, (err, results) => {
       if (err) {
         console.error("❌ Database error fetching contacts:", err);
@@ -75,7 +77,8 @@ module.exports = (db) => {
     }
 
     const searchTerm = `%${term.trim()}%`;
-    const sql = "SELECT * FROM contacts WHERE name LIKE ? OR email LIKE ? ORDER BY id DESC";
+    // Updated to order by created_at with fallback
+    const sql = "SELECT * FROM contacts WHERE name LIKE ? OR email LIKE ? ORDER BY COALESCE(created_at, FROM_UNIXTIME(0)) DESC, id DESC";
     
     db.query(sql, [searchTerm, searchTerm], (err, results) => {
       if (err) {
