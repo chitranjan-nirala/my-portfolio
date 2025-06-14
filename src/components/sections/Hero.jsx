@@ -170,7 +170,7 @@ const Hero = () => {
               >
                 {/* Image with hover zoom effect */}
                 <img 
-                  src="src/assets/_DAP2434-Photoroom.png" 
+                  src="../../assets/_DAP2434-Photoroom.png" 
                   alt="Chitranjan Nirala - Web Developer and UI/UX Designer" 
                   className={`w-full h-full object-cover transition-all duration-700 ease-in-out
                     ${isHovering ? 'scale-110 filter saturate-110' : 'scale-100'}`}
