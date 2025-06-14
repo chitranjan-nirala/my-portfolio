@@ -68,6 +68,7 @@ try {
 const app = express();
 const PORT = process.env.PORT || 5000;
 
+
 // Middleware
 app.use(cors({
   origin: process.env.FRONTEND_URL || '*', // Configure this in Railway
@@ -302,16 +303,16 @@ app.get('/admin/db-info', (req, res) => {
 });
 
 // Middleware to check database connection before handling routes
-app.use('/api/contact', (req, res, next) => {
-  if (!db || db.state !== 'authenticated') {
-    return res.status(503).json({
-      error: 'Database not available',
-      message: 'Please try again later',
-      timestamp: new Date().toISOString()
-    });
-  }
-  next();
-});
+// app.use('/api/contact', (req, res, next) => {
+//   if (!db || db.state !== 'authenticated') {
+//     return res.status(503).json({
+//       error: 'Database not available',
+//       message: 'Please try again later',
+//       timestamp: new Date().toISOString()
+//     });
+//   }
+//   next();
+// });
 
 // Routes
 try {
@@ -340,6 +341,33 @@ app.use((err, req, res, next) => {
   console.error('❌ Unhandled error:', err);
   res.status(500).json({ 
     error: 'Internal server error',
+    timestamp: new Date().toISOString()
+  });
+});
+
+// Root route - handles GET requests to /
+app.get('/', (req, res) => {
+  res.json({
+    message: 'Portfolio Backend API',
+    status: 'running',
+    version: '1.0.0',
+    endpoints: {
+      health: '/api/health',
+      contact: '/api/contact',
+      admin: {
+        contacts: '/admin/contacts',
+        dbInfo: '/admin/db-info'
+      }
+    },
+    timestamp: new Date().toISOString()
+  });
+});
+
+// Status endpoint
+app.get('/api/status', (req, res) => {
+  res.json({
+    status: 'OK',
+    uptime: process.uptime(),
     timestamp: new Date().toISOString()
   });
 });
