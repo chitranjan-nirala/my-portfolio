@@ -67,7 +67,7 @@ try {
 
 const app = express();
 // FIX: Uncommented PORT variable - this was causing the issue!
-const PORT = process.env.PORT || 8080; // Changed default to 8080 for Railway
+const PORT =  8080; // Changed default to 8080 for Railway
 
 // Middleware
 app.use(cors({
