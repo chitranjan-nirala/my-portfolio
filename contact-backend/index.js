@@ -48,6 +48,16 @@
 //   console.log(`Server running on http://localhost:${PORT}`);
 // });
 
+// Add this RIGHT at the top of your index.js, before everything else
+console.log('🔍 Environment debugging:');
+console.log('   NODE_ENV:', process.env.NODE_ENV);
+console.log('   PORT from env:', process.env.PORT);
+console.log('   MYSQLHOST:', process.env.MYSQLHOST);
+console.log('   RAILWAY_ENVIRONMENT:', process.env.RAILWAY_ENVIRONMENT);
+
+const PORT = process.env.PORT || 5000;
+console.log('   Final PORT value:', PORT);
+
 
 
 
@@ -58,6 +68,9 @@ const mysql = require('mysql2');
 const cors = require('cors');
 const bodyParser = require('body-parser');
 
+
+
+
 // Load environment variables if .env file exists
 try {
   require('dotenv').config();
@@ -66,7 +79,7 @@ try {
 }
 
 const app = express();
-const PORT = process.env.PORT || 5000;
+// const PORT = process.env.PORT || 5000;
 
 
 // Middleware
