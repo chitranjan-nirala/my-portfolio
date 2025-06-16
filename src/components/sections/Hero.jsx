@@ -1,8 +1,8 @@
 import { useEffect, useRef, useState } from "react";
 import { motion } from "framer-motion";
 import resume from '../../assets/Chitranjan_Resume.pdf';
-// import heroImage from '../../assets/hero-image.png';
 import heroImage from '../../assets/_DAP2434-Photoroom.png'
+
 const Hero = () => {
   const heroRef = useRef(null);
   const backgroundShapeRef = useRef(null);
@@ -37,9 +37,9 @@ const Hero = () => {
       
       <div className="container mx-auto pl-8 pr-2 md:pl-24 md:pr-8 relative z-10">
         <div className="flex flex-col lg:flex-row items-center justify-between gap-12">
-          {/* Text content - Always first in mobile */}
+          {/* Text content */}
           <div className="w-full lg:w-1/2 flex flex-col">
-            {/* Name and role - Will always appear first in mobile */}
+            {/* Name - Always first */}
             <div className="order-1 mb-4">
               <motion.div
                 initial={{ opacity: 0, y: 20 }}
@@ -47,16 +47,58 @@ const Hero = () => {
                 transition={{ duration: 0.5 }}
                 className="mb-2"
               >
-                <span className="text-white-600 font-bold text-xl md:text-2xl" style={{ fontSize: "30px"  }}>I am Chitranjan Nirala</span>
+                <span className="text-white-600 font-bold text-xl md:text-2xl" style={{ fontSize: "35px"  }}>I am Chitranjan Nirala</span>
               </motion.div>
-              
-                 
+            </div>
+
+            {/* Hero image - Second on mobile, after name but before titles */}
+            <motion.div
+              initial={{ opacity: 0, scale: 0.8 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ duration: 0.8, ease: "easeOut" }}
+              className="w-full lg:hidden flex justify-center relative order-2 my-8"
+              onMouseEnter={() => setIsHovering(true)}
+              onMouseLeave={() => setIsHovering(false)}
+            >
+              <div className="relative w-72 h-72 cursor-pointer group"> 
+                {/* Background shine effect - Rotates on hover with container */}
+                <div 
+                  className={`absolute inset-0 bg-gradient-to-tr from-purple-500/20 via-blue-500/0 to-blue-500/20 rounded-3xl 
+                    transition-all duration-700 ease-in-out ${isHovering ? 'opacity-100 rotate-12' : 'opacity-50 rotate-6'}`}
+                />
+                
+                {/* Profile picture container with hover effects */}
+                <div 
+                  className={`absolute inset-0 rounded-3xl overflow-hidden border-2 border-purple-500/30 
+                    transition-all duration-500 ${isHovering ? 'rotate-0' : 'rotate-6'}`}
+                >
+                  {/* Image with hover zoom effect */}
+                  <img 
+                    src={heroImage} 
+                    alt="Chitranjan Nirala - Web Developer and UI/UX Designer" 
+                    className={`w-full h-full object-cover transition-all duration-700 ease-in-out
+                      ${isHovering ? 'scale-110 filter saturate-110' : 'scale-100'}`}
+                  />
+                  
+                  {/* Overlay on hover */}
+                  <div className={`absolute inset-0 bg-gradient-to-t from-purple-900/70 to-transparent 
+                    transition-opacity duration-500 ${isHovering ? 'opacity-10' : 'opacity-0'}`}>
+                  </div>
+                </div>         
+              </div>
+            </motion.div>
+
+            {/* Professional titles - Third on mobile */}
+             <div className="order-3 mb-4">
               <motion.h1
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 transition={{ duration: 0.5, delay: 0.1 }}
-                className="font-bold mb-0"
-                style={{ fontSize: "65px", marginBottom: "-15px" }}
+                className="font-bold mb-0 text-3xl sm:text-4xl md:text-6xl lg:text-7xl"
+                style={{ 
+                  fontSize: "clamp(2.875rem, 5vw, 4rem)", 
+                  marginBottom: "15px" 
+                }}
               >
                 <span className="bg-gradient-to-r from-purple-400 to-white text-transparent bg-clip-text">Web Developer +</span>
               </motion.h1>
@@ -65,15 +107,18 @@ const Hero = () => {
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 transition={{ duration: 0.5, delay: 0.2 }}
-                className="font-bold mb-6"
-                style={{ fontSize: "60px", marginBottom: "-10px" }}
+                className="font-bold mb-6 text-2xl sm:text-3xl md:text-5xl lg:text-6xl"
+                style={{ 
+                  fontSize: "clamp(2.5rem, 4.5vw, 3.75rem)", 
+                  marginBottom: "10px" 
+                }}
               >
                 <span className="bg-gradient-to-r from-purple-400 to-white text-transparent bg-clip-text">UI/UX Designer</span>
               </motion.h2>
             </div>
 
-            {/* Description and buttons - Will be after image in mobile */}
-            <div className="order-3 lg:order-2">
+            {/* Description and buttons - Last on mobile */}
+            <div className="order-4">
               <motion.p
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
@@ -149,12 +194,12 @@ const Hero = () => {
             </div>
           </div>
           
-          {/* Hero image - Now comes second in mobile view */}
+          {/* Hero image - Only visible on large screens (lg and above) */}
           <motion.div
             initial={{ opacity: 0, scale: 0.8 }}
             animate={{ opacity: 1, scale: 1 }}
             transition={{ duration: 0.8, ease: "easeOut" }}
-            className="w-full lg:w-1/2 flex justify-center relative order-2 lg:order-2 my-8 lg:my-0"
+            className="hidden lg:flex w-full lg:w-1/2 justify-center relative my-8 lg:my-0"
             onMouseEnter={() => setIsHovering(true)}
             onMouseLeave={() => setIsHovering(false)}
           >

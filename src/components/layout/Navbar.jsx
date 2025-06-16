@@ -8,11 +8,11 @@ const Navbar = () => {
   const [scrolled, setScrolled] = useState(false);
   
   const navItems = [
-    { name: "Home", path: "/" },
-    { name: "About", path: "/#about" },
-    { name: "Skills", path: "/#skills" },
-    { name: "Projects", path: "/#projects" },
-    { name: "Contact", path: "/#contact" },
+    { name: "Home", path: "#home", isHash: true },
+    { name: "About", path: "#about", isHash: true },
+    { name: "Skills", path: "#skills", isHash: true },
+    { name: "Projects", path: "#projects", isHash: true },
+    { name: "Contact", path: "#contact", isHash: true },
   ];
   
   // Handle scroll effect
@@ -31,6 +31,19 @@ const Navbar = () => {
       window.removeEventListener("scroll", handleScroll);
     };
   }, []);
+
+  // Smooth scroll function
+  const handleSmoothScroll = (e, targetId) => {
+    e.preventDefault();
+    const targetElement = document.querySelector(targetId);
+    if (targetElement) {
+      targetElement.scrollIntoView({
+        behavior: 'smooth',
+        block: 'start'
+      });
+    }
+    setIsOpen(false); // Close mobile menu after clicking
+  };
   
   // Mobile menu animations
   const menuVariants = {
@@ -77,15 +90,28 @@ const Navbar = () => {
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.3, delay: index * 0.1 }}
               >
-                <Link
-                  to={item.path}
-                  className="relative group"
-                >
-                  <span className="text-white hover:text-accent transition-colors duration-300">
-                    {item.name}
-                  </span>
-                  <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-accent transition-all duration-300 group-hover:w-full" />
-                </Link>
+                {item.isHash ? (
+                  <a
+                    href={item.path}
+                    onClick={(e) => handleSmoothScroll(e, item.path)}
+                    className="relative group cursor-pointer"
+                  >
+                    <span className="text-white hover:text-accent transition-colors duration-300">
+                      {item.name}
+                    </span>
+                    <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-accent transition-all duration-300 group-hover:w-full" />
+                  </a>
+                ) : (
+                  <Link
+                    to={item.path}
+                    className="relative group"
+                  >
+                    <span className="text-white hover:text-accent transition-colors duration-300">
+                      {item.name}
+                    </span>
+                    <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-accent transition-all duration-300 group-hover:w-full" />
+                  </Link>
+                )}
               </motion.div>
             ))}
           </div>
@@ -124,14 +150,25 @@ const Navbar = () => {
             >
               <div className="flex flex-col space-y-4 py-4">
                 {navItems.map((item) => (
-                  <Link
-                    key={item.name}
-                    to={item.path}
-                    className="text-white hover:text-accent transition-colors duration-300 px-2 py-1"
-                    onClick={() => setIsOpen(false)}
-                  >
-                    {item.name}
-                  </Link>
+                  item.isHash ? (
+                    <a
+                      key={item.name}
+                      href={item.path}
+                      onClick={(e) => handleSmoothScroll(e, item.path)}
+                      className="text-white hover:text-accent transition-colors duration-300 px-2 py-1 cursor-pointer"
+                    >
+                      {item.name}
+                    </a>
+                  ) : (
+                    <Link
+                      key={item.name}
+                      to={item.path}
+                      className="text-white hover:text-accent transition-colors duration-300 px-2 py-1"
+                      onClick={() => setIsOpen(false)}
+                    >
+                      {item.name}
+                    </Link>
+                  )
                 ))}
               </div>
             </motion.div>

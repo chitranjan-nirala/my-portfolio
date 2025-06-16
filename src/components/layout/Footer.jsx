@@ -3,14 +3,26 @@ import { Link } from "react-router-dom";
 import { FaTwitter, FaInstagram, FaLinkedin, FaGithub, FaEnvelope, FaPhoneAlt, FaMapMarkerAlt } from "react-icons/fa";
 
 const Footer = () => {
-  const navItems = [
-    { name: "Home", path: "/" },
-    { name: "About", path: "/#about" },
-    { name: "Skills", path: "/#skills" },
-    { name: "Projects", path: "/#projects" },
-    { name: "Contact", path: "/#contact" },
+   const navItems = [
+    { name: "Home", path: "#home", isHash: true },
+    { name: "About", path: "#about", isHash: true },
+    { name: "Skills", path: "#skills", isHash: true },
+    { name: "Projects", path: "#projects", isHash: true },
+    { name: "Contact", path: "#contact", isHash: true },
   ];
 
+  // Smooth scroll function
+  const handleSmoothScroll = (e, targetId) => {
+    e.preventDefault();
+    const targetElement = document.querySelector(targetId);
+    if (targetElement) {
+      targetElement.scrollIntoView({
+        behavior: 'smooth',
+        block: 'start'
+      });
+    }
+  };
+  
   const socialLinks = [
     { icon: <FaTwitter />, url: "https://twitter.com/chitranjan-nirala" },
     { icon: <FaInstagram />, url: "https://www.instagram.com/ck_official_143/" },
@@ -64,18 +76,28 @@ const Footer = () => {
             </div>
           </div>
 
-          {/* Links */}
+          {/* Navigation Links */}
           <div>
-            <h3 className="font-bold text-lg mb-6">Quick Links</h3>
-            <ul className="space-y-3">
+            <h4 className="text-lg font-semibold mb-4">Quick Links</h4>
+            <ul className="space-y-2">
               {navItems.map((item) => (
                 <li key={item.name}>
-                  <Link
-                    to={item.path}
-                    className="text-gray-400 hover:text-accent transition-colors duration-300"
-                  >
-                    {item.name}
-                  </Link>
+                  {item.isHash ? (
+                    <a
+                      href={item.path}
+                      onClick={(e) => handleSmoothScroll(e, item.path)}
+                      className="text-gray-400 hover:text-purple-400 transition-colors duration-300 cursor-pointer"
+                    >
+                      {item.name}
+                    </a>
+                  ) : (
+                    <Link
+                      to={item.path}
+                      className="text-gray-400 hover:text-purple-400 transition-colors duration-300"
+                    >
+                      {item.name}
+                    </Link>
+                  )}
                 </li>
               ))}
             </ul>
@@ -96,7 +118,12 @@ const Footer = () => {
               </li>
               <li className="flex items-center">
                 <FaPhoneAlt className="mr-2 text-accent" />
-                <span>8252800085</span>
+                <a
+                  href="tel:+918252800085"
+                  className="hover:text-accent transition-colors duration-300"
+                >
+                  8252800085
+                </a>
               </li>
               <li className="flex items-center">
                 <FaMapMarkerAlt className="mr-2 text-accent" />
