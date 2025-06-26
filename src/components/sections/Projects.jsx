@@ -62,7 +62,7 @@ const ProjectsPortfolio = () => {
       description: "Trash2Cash, a mobile app aimed at transforming how we manage waste by turning it into a valuable resource! ",
       categories: ["Mobile App", "UX/UI"],
       image: thumbnail16 ,
-      link: "https://www.nist.edu/downloads/eNews/NIST%20Chronicle%20December%202024.pdf",
+      link: "https://www.behance.net/gallery/228793597/Trash2Cash-UXUI-Case-Study-(30-Screens)",
       accentColor: "#FDA4AF"
     },
      {
