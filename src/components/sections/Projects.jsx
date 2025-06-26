@@ -17,6 +17,7 @@ import thumbnail12 from "../../assets/placementpage.png";
 import thumbnail13 from "../../assets/resturant.png"; 
 import thumbnail14 from "../../assets/thumbnAail.png"; 
 import thumbnail15 from "../../assets/NC-Dec-2024w.png"; 
+import thumbnail16 from "../../assets/thumbnail16.png"; 
 gsap.registerPlugin(ScrollTrigger);
 
 const ProjectsPortfolio = () => {
@@ -55,6 +56,15 @@ const ProjectsPortfolio = () => {
   }, []);
 
   const allProjects = [
+    {
+      id: 16,
+      title: "Trash2Cash - UX/UI Case Study ",
+      description: "Trash2Cash, a mobile app aimed at transforming how we manage waste by turning it into a valuable resource! ",
+      categories: ["Mobile App", "UX/UI"],
+      image: thumbnail16 ,
+      link: "https://www.nist.edu/downloads/eNews/NIST%20Chronicle%20December%202024.pdf",
+      accentColor: "#FDA4AF"
+    },
      {
       id: 7,
       title: "Chit-chat:  real-time messaging App",
@@ -191,6 +201,7 @@ const ProjectsPortfolio = () => {
       link: "https://www.nist.edu/downloads/eNews/NIST%20Chronicle%20December%202024.pdf",
       accentColor: "#FDA4AF"
     }
+     
   ];
 
   // Shortened the descriptions for better mobile display
